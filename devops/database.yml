@@ -10,14 +10,36 @@
     dest_folder: "/opt/deploy1/"  # The folder where the repo will be cloned
     ansible_become_pass: "y%cWP2ZMvn6$jYU"
   tasks:
+  # This should be configured for ubuntu linux servers.
+  # The current setup is on a windows laptop with WSL2 installed.
     # - name: Install docker and docker compose
     #   apt:
     #     name: docker.io docker-compose
     #     state: present
     #     update_cache: yes
-    - name: print hostname
-      ansible.builtin.debug:
-        msg: "{{ inventory_hostname }}"
+    # ==============================================================
+    # docker-compose.exe -f devops/docker-compose.yml rm -s -f -v
+    - name: Stop+Delete containers
+      ansible.builtin.command:
+        cmd: '/mnt/c/Program\ Files/Docker/Docker/resources/bin/docker-compose.exe -f devops/docker-compose.yml rm -s -f -v'
+      become: yes
+      args:
+        chdir: /opt/deploy1/
+    - name: collect files in target path
+      ansible.builtin.find:
+        paths: "/opt/deploy1"
+        hidden: true
+        recurse: true
+        file_type: any
+      register: collected_files
+    - name: remove collected files
+      file:
+        path: "{{ item.path }}"
+        state: absent
+      with_items: >
+        {{
+          collected_files.files
+        }}
     - name: Clone the repository
       ansible.builtin.git:
         repo: "https://{{ git_token }}@github.com/{{ git_user }}/{{ git_repo }}.git"
@@ -27,10 +49,11 @@
         update: yes
         force: yes
       become: yes
-    # - name: Start the Application
-    #   # shell: docker-compose.exe -f devops/docker-compose.yml up -d --build db phpmyadmin
-    #   ansible.builtin.command:
-    #     cmd: "cd /opt/deploy1/devops && docker-compose.exe up -d db phpmyadmin"
-    #   become: yes
-    #   args:
-    #     chdir: /opt/deploy1/devops
+    - name: Start the Application
+      # shell: docker-compose.exe -f devops/docker-compose.yml up -d --build db phpmyadmin
+      ansible.builtin.command:
+        cmd: '/mnt/c/Program\ Files/Docker/Docker/resources/bin/docker-compose.exe -f devops/docker-compose.yml up db phpmyadmin -d --build'
+      become: yes
+      args:
+        chdir: /opt/deploy1/
+        # cd /opt/deploy1/devops && 
