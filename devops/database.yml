@@ -1,0 +1,36 @@
+- name: Deploy DB+UI Server
+  hosts: localhost
+  gather_facts: no
+  connection: local
+  become: yes
+  vars:
+    git_user: "ian8dev"  # Replace with your GitHub username
+    git_repo: "devops-fullstack"  # Replace with the repository name
+    git_token: "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"  # Replace with your personal access token
+    dest_folder: "/opt/deploy1/"  # The folder where the repo will be cloned
+    ansible_become_pass: "y%cWP2ZMvn6$jYU"
+  tasks:
+    # - name: Install docker and docker compose
+    #   apt:
+    #     name: docker.io docker-compose
+    #     state: present
+    #     update_cache: yes
+    - name: print hostname
+      ansible.builtin.debug:
+        msg: "{{ inventory_hostname }}"
+    - name: Clone the repository
+      ansible.builtin.git:
+        repo: "https://{{ git_token }}@github.com/{{ git_user }}/{{ git_repo }}.git"
+        dest: "/opt/deploy1/"
+        version: main
+        clone: yes
+        update: yes
+        force: yes
+      become: yes
+    # - name: Start the Application
+    #   # shell: docker-compose.exe -f devops/docker-compose.yml up -d --build db phpmyadmin
+    #   ansible.builtin.command:
+    #     cmd: "cd /opt/deploy1/devops && docker-compose.exe up -d db phpmyadmin"
+    #   become: yes
+    #   args:
+    #     chdir: /opt/deploy1/devops

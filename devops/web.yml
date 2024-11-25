@@ -1,0 +1,22 @@
+- name: Deploy App
+  hosts: webservers
+  become: yes
+
+  tasks:
+    - name: Install docker and docker compose
+      apt:
+        name: docker.io docker-compose
+        state: present
+        update_cache: yes
+
+    - name: Clone the repository
+      ansible.builtin.command: >
+        git clone https://{{ git_token }}@github.com/{{ git_user }}/{{ git_repo }}.git /opt/deploy2/
+      vars:
+        git_token: "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"
+        git_user: "ian8dev"
+        git_repo: "devops-fullstack"
+      become: yes
+
+    # - name: Start the Application
+    #   shell: docker-compose.exe up -d --build
