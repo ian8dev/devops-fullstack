@@ -10,7 +10,7 @@
     dest_folder: "/opt/deploy1/"
     ansible_become_pass: "y%cWP2ZMvn6$jYU"
   tasks:
-  # This should be configured for ubuntu linux servers.
+  # This should be reconfigured if using plain ubuntu linux servers.
   # The current setup is on a windows laptop with WSL2 installed.
     # - name: Install docker and docker compose
     #   apt:
@@ -18,7 +18,7 @@
     #     state: present
     #     update_cache: yes
     # ==============================================================
-    # docker-compose.exe -f devops/docker-compose.yml rm -s -f -v
+
     - name: Stop+Delete containers
       ansible.builtin.command:
         cmd: '/mnt/c/Program\ Files/Docker/Docker/resources/bin/docker-compose.exe -f devops/docker-compose.yml rm -s -f -v'
@@ -50,10 +50,8 @@
         force: yes
       become: yes
     - name: Start the Application
-      # shell: docker-compose.exe -f devops/docker-compose.yml up -d --build db phpmyadmin
       ansible.builtin.command:
         cmd: '/mnt/c/Program\ Files/Docker/Docker/resources/bin/docker-compose.exe -f devops/docker-compose.yml up db phpmyadmin -d --build'
       become: yes
       args:
         chdir: /opt/deploy1/
-        # cd /opt/deploy1/devops && 
