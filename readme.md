@@ -54,6 +54,7 @@
 ### Deployment Steps:
 1. Clone the repo
 ```bash
+
 # git clone https://<personal-access-token>@github.com/ian8dev/devops-fullstack.git
 # cd devops-fullstack/devops
 ```
@@ -63,6 +64,12 @@ ansible_become_pass: ""
 ```
 3. Create deployment paths. This should have been included in the playbook.
 ```bash
-# sudo mkdir -p /opt/deploy1 /opt/deploy2Run playbook# ansible-playbook database.yml
-```
 
+# sudo mkdir -p /opt/deploy1 /opt/deploy2
+```
+4. Run playbooks
+```bash
+
+   # ansible-playbook database.yml
+   # ansible-playbook web.yml
+```
