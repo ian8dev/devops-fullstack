@@ -4,10 +4,10 @@
   connection: local
   become: yes
   vars:
-    git_user: "ian8dev"  # Replace with your GitHub username
-    git_repo: "devops-fullstack"  # Replace with the repository name
-    git_token: "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"  # Replace with your personal access token
-    dest_folder: "/opt/deploy1/"  # The folder where the repo will be cloned
+    git_user: "ian8dev"
+    git_repo: "devops-fullstack"
+    git_token: "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"
+    dest_folder: "/opt/deploy1/"
     ansible_become_pass: "y%cWP2ZMvn6$jYU"
   tasks:
   # This should be configured for ubuntu linux servers.
