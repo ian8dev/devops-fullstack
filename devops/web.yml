@@ -1,22 +1,57 @@
-- name: Deploy App
-  hosts: webservers
+- name: Deploy App Servers
+  hosts: localhost
+  gather_facts: no
+  connection: local
   become: yes
-
+  vars:
+    git_user: "ian8dev"
+    git_repo: "devops-fullstack"
+    git_token: "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"
+    dest_folder: "/opt/deploy2/"
+    ansible_become_pass: "y%cWP2ZMvn6$jYU"
   tasks:
-    - name: Install docker and docker compose
-      apt:
-        name: docker.io docker-compose
-        state: present
-        update_cache: yes
+    # This should be reconfigured if using plain ubuntu linux servers.
+    # The current setup is on a windows laptop with WSL2 installed.
+    # - name: Install docker and docker compose
+    #   apt:
+    #     name: docker.io docker-compose
+    #     state: present
+    #     update_cache: yes
+    # ==============================================================
 
-    - name: Clone the repository
-      ansible.builtin.command: >
-        git clone https://{{ git_token }}@github.com/{{ git_user }}/{{ git_repo }}.git /opt/deploy2/
-      vars:
-        git_token: "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"
-        git_user: "ian8dev"
-        git_repo: "devops-fullstack"
+    - name: Stop+Delete containers
+      ansible.builtin.command:
+        cmd: '/mnt/c/Program\ Files/Docker/Docker/resources/bin/docker-compose.exe -f devops/docker-compose.yml rm -s -f -v'
       become: yes
-
-    # - name: Start the Application
-    #   shell: docker-compose.exe up -d --build
+      args:
+        chdir: "{{ dest_folder }}"
+    - name: collect files in target path
+      ansible.builtin.find:
+        paths: "{{ dest_folder }}"
+        hidden: true
+        recurse: true
+        file_type: any
+      register: collected_files
+    - name: remove collected files
+      file:
+        path: "{{ item.path }}"
+        state: absent
+      with_items: >
+        {{
+          collected_files.files
+        }}
+    - name: Clone the repository
+      ansible.builtin.git:
+        repo: "https://{{ git_token }}@github.com/{{ git_user }}/{{ git_repo }}.git"
+        dest: "{{ dest_folder }}"
+        version: main
+        clone: yes
+        update: yes
+        force: yes
+      become: yes
+    - name: Start the Application
+      ansible.builtin.command:
+        cmd: '/mnt/c/Program\ Files/Docker/Docker/resources/bin/docker-compose.exe -f devops/docker-compose.yml up web1 web2 -d --build'
+      become: yes
+      args:
+        chdir: "{{ dest_folder }}"
